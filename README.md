@@ -8,6 +8,8 @@ Termio also provides some ready-to-use widgets. Their `..._make()` functions ret
 
 Termio is actively tested on Mac OS X, but should also work on Linux. It will probably never work on Windows.
 
+**Building/Installing**: `make`; `make install`. This will install in `~/prefix/{lib,include}`. To change that, see the first few lines of the `Makefile`.
+
 Thoughts, bug reports and contributions are welcome. This is not a high-profile project for me, so don't expect your favourite feature to be implemented within a day. ;)
 
 \- Tom Smeding
