@@ -7,8 +7,6 @@ PREFIX = $(HOME)/prefix
 
 # ---------------------------------------------------------
 
-NAME = termio
-
 ifeq ($(PREFIX),)
 	PREFIX = /usr/local
 endif
@@ -28,7 +26,11 @@ else
 endif
 
 
-.PHONY: all clean install remake reinstall dynamiclib staticlib
+# Don't remove intermediate files
+.SECONDARY:
+
+
+.PHONY: all clean install uninstall remake reinstall dynamiclib staticlib
 
 all: dynamiclib staticlib
 
@@ -36,17 +38,22 @@ clean:
 	rm -f *.$(DYLIB_EXT) *.a *.o
 
 install: all
-	install $(NAME).$(DYLIB_EXT) $(PREFIX)/lib
-	install $(NAME).a $(PREFIX)/lib
-	install $(NAME).h $(PREFIX)/include
+	install termio.$(DYLIB_EXT) $(PREFIX)/lib
+	install termio.a $(PREFIX)/lib
+	install termio.h $(PREFIX)/include
+
+uninstall:
+	rm -f $(PREFIX)/lib/termio.$(DYLIB_EXT)
+	rm -f $(PREFIX)/lib/termio.a
+	rm -f $(PREFIX)/include/termio.h
 
 remake: clean all
 
 reinstall: clean install
 
-dynamiclib: $(NAME).$(DYLIB_EXT)
+dynamiclib: termio.$(DYLIB_EXT)
 
-staticlib: $(NAME).a
+staticlib: termio.a
 
 
 %.o: %.c $(HEADER_FILES)
