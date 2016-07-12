@@ -38,22 +38,22 @@ clean:
 	rm -f *.$(DYLIB_EXT) *.a *.o
 
 install: all
-	install termio.$(DYLIB_EXT) $(PREFIX)/lib
-	install termio.a $(PREFIX)/lib
+	install libtermio.$(DYLIB_EXT) $(PREFIX)/lib
+	install libtermio.a $(PREFIX)/lib
 	install termio.h $(PREFIX)/include
 
 uninstall:
-	rm -f $(PREFIX)/lib/termio.$(DYLIB_EXT)
-	rm -f $(PREFIX)/lib/termio.a
+	rm -f $(PREFIX)/lib/libtermio.$(DYLIB_EXT)
+	rm -f $(PREFIX)/lib/libtermio.a
 	rm -f $(PREFIX)/include/termio.h
 
 remake: clean all
 
 reinstall: clean install
 
-dynamiclib: termio.$(DYLIB_EXT)
+dynamiclib: libtermio.$(DYLIB_EXT)
 
-staticlib: termio.a
+staticlib: libtermio.a
 
 
 %.o: %.c $(HEADER_FILES)
