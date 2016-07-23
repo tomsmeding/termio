@@ -292,6 +292,15 @@ __attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
 	return len;
 }
 
+void fillrect(int x,int y,int w,int h,char c){
+	for(int yy=y;yy<y+h;yy++){
+		for(int xx=x;xx<x+w;xx++){
+			atxy(drawbuf,xx,yy).style=curstyle;
+			atxy(drawbuf,xx,yy).c=c;
+		}
+	}
+}
+
 static void redrawfullx(bool full){
 	if(needresize){
 		resizeterm();

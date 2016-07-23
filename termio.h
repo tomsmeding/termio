@@ -32,6 +32,7 @@ void setbold(bool bold);
 void setul(bool ul);
 void tputc(char c);
 int tprintf(const char *format,...) __attribute__((format (printf, 1, 2)));
+void fillrect(int x,int y,int w,int h,char c);
 void redraw(void);
 void redrawfull(void);
 
