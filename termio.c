@@ -160,17 +160,17 @@ void clearscreen(void){
 
 
 void setstyle(const Style *style){
-	assert((style->fg>0&&style->fg<8)||style->fg==9);
-	assert((style->bg>0&&style->bg<8)||style->bg==9);
+	assert((style->fg>=0&&style->fg<8)||style->fg==9);
+	assert((style->bg>=0&&style->bg<8)||style->bg==9);
 	curstyle=*style;
 }
 
 void setfg(int fg){
-	assert((fg>0&&fg<8)||fg==9);
+	assert((fg>=0&&fg<8)||fg==9);
 	curstyle.fg=fg;
 }
 void setbg(int bg){
-	assert((bg>0&&bg<8)||bg==9);
+	assert((bg>=0&&bg<8)||bg==9);
 	curstyle.bg=bg;
 }
 void setbold(bool bold){
