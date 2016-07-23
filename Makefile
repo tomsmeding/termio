@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -O2 -fwrapv
+CFLAGS = -Wall -Wextra -std=c11 -O2 -fwrapv -fPIC
 
 # Set to /usr/local to install in the system directories
 PREFIX = $(HOME)/prefix
@@ -22,7 +22,7 @@ ifeq ($(UNAME),Darwin)
 	DYLIB_FLAGS = -dynamiclib
 else
 	DYLIB_EXT = so
-	DYLIB_FLAGS = -shared -fPIC
+	DYLIB_FLAGS = -shared
 endif
 
 
