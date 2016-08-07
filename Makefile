@@ -1,5 +1,11 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -O2 -fwrapv -fPIC
+
+CFLAGS = -Wall -Wextra -std=c11 -fwrapv -fPIC
+ifdef DEBUG
+	CFLAGS += -g
+else
+	CFLAGS += -O2
+endif
 
 # Set to /usr/local to install in the system directories
 PREFIX = $(HOME)/prefix
