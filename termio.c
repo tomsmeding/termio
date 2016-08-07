@@ -58,8 +58,9 @@ static void sighandler(int sig){
 
 static Size querytermsize(void){
 	struct winsize w;
-	ioctl(1,TIOCGWINSZ,&w);
+	assert(ioctl(1,TIOCGWINSZ,&w)!=-1);
 	Size sz={w.ws_col,w.ws_row};
+	assert(sz.w>0&&sz.h>0);
 	return sz;
 }
 
