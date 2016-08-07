@@ -74,6 +74,7 @@ char* prw_handlekey(Promptwidget *prw,int key){
 			prw->buf=malloc(prw->sz);
 			assert(prw->buf);
 			prw->buf[0]='\0';
+			prw->len=0;
 			prw_redraw(prw);
 			return ret;
 		}

@@ -71,6 +71,7 @@ void lgw_redraw(Logwidget *lgw); //called automatically; should only be needed i
 void lgw_add(Logwidget *lgw,const char *line);
 void lgw_addf(Logwidget *lgw,const char *format,...) __attribute__((format (printf, 2,3)));
 void lgw_clear(Logwidget *lgw);
+void lgw_changetitle(Logwidget *lgw,const char *title);
 
 
 struct Promptwidget;

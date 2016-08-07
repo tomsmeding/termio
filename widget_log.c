@@ -43,15 +43,6 @@ Logwidget* lgw_make(int x,int y,int w,int h,const char *title){
 	assert(w>=3&&h>=3);
 	Logwidget *lgw=malloc(sizeof(Logwidget));
 	if(!lgw)return NULL;
-	if(title==NULL)lgw->title=NULL;
-	else {
-		int len=asprintf(&lgw->title,"%s",title);
-		if(!lgw->title){
-			free(lgw);
-			return NULL;
-		}
-		if(len>w-2)lgw->title[w]='\0';
-	}
 	lgw->cb=cb_make(h-2,free);
 	if(!lgw->cb){
 		if(lgw->title)free(lgw->title);
@@ -64,9 +55,8 @@ Logwidget* lgw_make(int x,int y,int w,int h,const char *title){
 	lgw->w=w;
 	lgw->h=h;
 
-	pushcursor();
-	lgw_drawborder(lgw);
-	popcursor();
+	lgw->title=NULL;
+	lgw_changetitle(lgw,title);
 
 	return lgw;
 }
@@ -128,5 +118,17 @@ __attribute__((format (printf, 2,3))) void lgw_addf(Logwidget *lgw,const char *f
 
 void lgw_clear(Logwidget *lgw){
 	cb_clear(lgw->cb);
+	lgw_redraw(lgw);
+}
+
+void lgw_changetitle(Logwidget *lgw,const char *title){
+	if(lgw->title)free(lgw->title);
+	if(title==NULL){
+		lgw->title=NULL;
+	} else {
+		int len=asprintf(&lgw->title,"%s",title);
+		assert(lgw->title);
+		if(len>lgw->w-2)lgw->title[lgw->w]='\0';
+	}
 	lgw_redraw(lgw);
 }
