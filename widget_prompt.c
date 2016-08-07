@@ -79,7 +79,10 @@ char* prw_handlekey(Promptwidget *prw,int key){
 		}
 
 		default:
-			if(key<32||key>126)bel();
+			if (key == 21) { // ^U
+				prw->buf[0]='\0';
+				prw->len=0;
+			} else if(key<32||key>126)bel();
 			else {
 				if(prw->len>=prw->sz-1){
 					prw->sz*=2;
