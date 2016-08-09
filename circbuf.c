@@ -4,7 +4,7 @@
 #include "circbuf.h"
 
 typedef struct Circbuf{
-	char **data;
+	void **data;
 	int sz,len,base;
 	void (*deleteitem)(void*);
 } Circbuf;
@@ -30,7 +30,7 @@ void cb_destroy(Circbuf *cb){
 	free(cb);
 }
 
-void cb_append(Circbuf *cb,char *item){
+void cb_append(Circbuf *cb,void *item){
 	int index=(cb->base+cb->len)%cb->sz;
 	if(cb->data[index])cb->deleteitem(cb->data[index]);
 	cb->data[index]=item;
@@ -46,7 +46,7 @@ void cb_clear(Circbuf *cb){
 	cb->len=0;
 }
 
-char* cb_get(Circbuf *cb,int index){
+void* cb_get(Circbuf *cb,int index){
 	assert(-cb->len<=index&&index<cb->len);
 	if(index<0)index+=cb->len;
 	return cb->data[(cb->base+index)%cb->sz];
