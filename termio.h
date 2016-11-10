@@ -2,6 +2,10 @@
 
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // --- CORE LIBRARY
 
 typedef struct Size{
@@ -108,3 +112,7 @@ Menuwidget* menu_make(int basex,int basey,const Menudata *data); //keeps a refer
 void menu_destroy(Menuwidget *mw);
 void menu_redraw(Menuwidget *mw); //should only be needed if overwritten
 Menukey menu_handlekey(Menuwidget *mw,int key);
+
+#ifdef __cplusplus
+}
+#endif
