@@ -25,7 +25,7 @@ UNAME = $(shell uname)
 
 ifeq ($(UNAME),Darwin)
 	DYLIB_EXT = dylib
-	DYLIB_FLAGS = -dynamiclib
+	DYLIB_FLAGS = -dynamiclib -install_name '$(PREFIX)/lib/libtermio.$(DYLIB_EXT)'
 else
 	DYLIB_EXT = so
 	DYLIB_FLAGS = -shared
