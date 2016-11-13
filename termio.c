@@ -60,7 +60,10 @@ static Size querytermsize(void){
 	struct winsize w;
 	assert(ioctl(1,TIOCGWINSZ,&w)!=-1);
 	Size sz={w.ws_col,w.ws_row};
-	assert(sz.w>0&&sz.h>0);
+	if(sz.w<=0||sz.h<=0){
+		sz.w=80;
+		sz.h=24;
+	}
 	return sz;
 }
 
