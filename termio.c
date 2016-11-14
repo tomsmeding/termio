@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <string.h>
+#include <ctype.h>
 #include <termios.h>
 #include <signal.h>
 #include <unistd.h>
@@ -398,13 +399,58 @@ void bel(void){
 }
 
 
+//- returns pointer to static buffer that is shared over calls
+//- returns NULL on error; if EOF is encountered, returns string till then
+//- number of characters read is stored in *nchars if no error occurred
+//- [from,to] is inclusive on both sides
+//- terminating character is included in string
+//- maximum number of characters can be passed in maxchars (or -1 if no limit)
+//- returned string is NOT null-terminated
+static const char* readuntilrange(int fd,unsigned char from,unsigned char to,int maxchars,int *nchars){
+	static char smallbuffer[16],*bigbuffer=NULL;
+	static int bigsize=-1;
+	if(maxchars==0)return NULL;
+	*nchars=0;
+	while(*nchars<(int)sizeof(smallbuffer)){
+		int ret=read(fd,smallbuffer+*nchars,1);
+		if(ret==-1)return NULL;
+		if(ret==0)return smallbuffer;
+		(*nchars)++;
+		if((smallbuffer[*nchars-1]>=from&&smallbuffer[*nchars-1]<=to)||
+		   (maxchars!=-1&&*nchars==maxchars)){
+			return smallbuffer;
+		}
+	}
+	if(bigbuffer==NULL){
+		bigsize=2*sizeof(smallbuffer);
+		bigbuffer=malloc(bigsize);
+		assert(bigbuffer);
+	}
+	memcpy(bigbuffer,smallbuffer,sizeof(smallbuffer));
+	while(true){
+		if(*nchars==bigsize){
+			bigsize*=2;
+			bigbuffer=realloc(bigbuffer,bigsize);
+			assert(bigbuffer);
+		}
+		int ret=read(fd,bigbuffer+*nchars,1);
+		if(ret==-1)return NULL;
+		if(ret==0)return bigbuffer;
+		(*nchars)++;
+		if((bigbuffer[*nchars-1]>=from&&bigbuffer[*nchars-1]<=to)||
+		   (maxchars!=-1&&*nchars==maxchars)){
+			return bigbuffer;
+		}
+	}
+}
+
 int tgetkey(void){
 	static int bufchar=-1; //-1 is nothing, 0<=x<=255 is char
 	unsigned char c;
 	if(bufchar!=-1){
 		c=bufchar;
 		bufchar=-1;
-	} else if(read(0,&c,1)==0)return -1; //EOF
+	} else if(read(0,&c,1)<=0)return -1; //EOF
 	if(c==12&&handlerefresh){
 		redrawfull();
 		return tgetkey();
@@ -422,20 +468,43 @@ int tgetkey(void){
 
 	if(ret==0)return 27; //just escape key
 	// if(ret==-1)do_something(); //in case of select error, we just continue reading
-	if(read(0,&c,1)==0)return -1; //EOF
+
+	if(read(0,&c,1)<=0)return -1; //EOF
 	if(c!='['){
 		bufchar=c;
 		return 27;
 	}
-	if(read(0,&c,1)==0)return -1; //EOF
-	switch(c){
+
+	const int maxsequencelen=64;
+	int sequencelen;
+	const char *sequence=readuntilrange(0,0x40,0x7e,maxsequencelen,&sequencelen);
+	if(sequence==NULL)return -1; //read error
+	if(sequencelen==maxsequencelen||sequencelen==0)return tgetkey(); //corrupted escape sequence?
+
+	int arguments[maxsequencelen/2],narguments=0;
+	for(int i=0;i<sequencelen;i++){
+		if(!isdigit(sequence[i]))continue; //digits are out of the 0x40-0x7e range
+		int arg=sequence[i]-'0';
+		for(i++;i<sequencelen;i++){
+			if(!isdigit(sequence[i]))break;
+			arg=10*arg+sequence[i]-'0';
+		}
+		i--;
+		arguments[narguments++]=arg;
+	}
+
+	char commandchar=sequence[sequencelen-1];
+	switch(commandchar){
 		case 'A': return KEY_UP;
 		case 'B': return KEY_DOWN;
 		case 'C': return KEY_RIGHT;
 		case 'D': return KEY_LEFT;
-		default:
-			return tgetkey(); // unrecognised escape sequence; really need to handle this better
+		case '~': return KEY_DELETE;
 	}
+
+	//unrecognised sequence!
+	bel();
+	return tgetkey();
 }
 
 // TODO: Better editing capabilities
@@ -455,7 +524,7 @@ char* tgetline(void){
 		case KEY_DELETE:
 			fflush(stdout);
 			if(buflen>0){
-				printf("\x1B[D \x1b[D");
+				printf("\x1B[D \x1B[D");
 				fflush(stdout);
 				buf[buflen]='\0';
 				buflen--;

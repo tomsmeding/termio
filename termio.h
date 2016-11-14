@@ -51,16 +51,16 @@ void bel(void);
 int tgetkey(void); // If in [0,254], actually that character; else one of the KEY_ constants
 char* tgetline(void); // Returns newly allocated string; null if escape was pressed
 
-#define KEY_BACKSPACE 8
 #define KEY_LF 10
 #define KEY_CR 13
 #define KEY_ESC 27
-#define KEY_DELETE 127
+#define KEY_BACKSPACE 127
 
 #define KEY_RIGHT 1001
 #define KEY_UP 1002
 #define KEY_LEFT 1003
 #define KEY_DOWN 1004
+#define KEY_DELETE 1100
 
 
 
