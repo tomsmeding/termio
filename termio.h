@@ -18,7 +18,7 @@ typedef struct Style{
 } Style;
 
 
-void initkeyboard(void);
+void initkeyboard(bool nosigkeys); // if nosigkeys is true, ^C and others will be read by tgetkey
 void endkeyboard(void);
 void initscreen(void);
 void endscreen(void);

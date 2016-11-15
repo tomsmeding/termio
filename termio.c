@@ -76,7 +76,7 @@ Size gettermsize(void){
 static bool have_tios_bak=false;
 static struct termios tios_bak;
 
-void initkeyboard(void){
+void initkeyboard(bool nosigkeys){
 	struct termios tios;
 	tcgetattr(0,&tios_bak);
 	have_tios_bak=true;
@@ -95,8 +95,8 @@ void initkeyboard(void){
 		|NOKERNINFO // don't print a status line on ^T
 #endif
 		|IEXTEN // don't handle things like ^V specially
-		//|ISIG // disable ^C ^\ and ^Z
 		);
+	if(nosigkeys)tios.c_lflag&=~ISIG; // disable ^C ^\ and ^Z
 	tios.c_cc[VMIN]=1; // read one char at a time
 	tios.c_cc[VTIME]=0; // no timeout on reading, make it a blocking read
 	tcsetattr(0,TCSAFLUSH,&tios);
