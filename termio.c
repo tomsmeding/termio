@@ -8,6 +8,7 @@
 #include <termios.h>
 #include <signal.h>
 #include <unistd.h>
+#include <errno.h>
 #include <assert.h>
 #include <sys/select.h>
 #include <sys/ioctl.h>
@@ -399,6 +400,14 @@ void bel(void){
 }
 
 
+static int readretry(int fd,void *buf,size_t nbyte){
+	int ret;
+	do {
+		ret=read(fd,buf,nbyte);
+	} while(ret==-1&&errno==EINTR);
+	return ret;
+}
+
 //- returns pointer to static buffer that is shared over calls
 //- returns NULL on error; if EOF is encountered, returns string till then
 //- number of characters read is stored in *nchars if no error occurred
@@ -412,7 +421,7 @@ static const char* readuntilrange(int fd,unsigned char from,unsigned char to,int
 	if(maxchars==0)return NULL;
 	*nchars=0;
 	while(*nchars<(int)sizeof(smallbuffer)){
-		int ret=read(fd,smallbuffer+*nchars,1);
+		int ret=readretry(fd,smallbuffer+*nchars,1);
 		if(ret==-1)return NULL;
 		if(ret==0)return smallbuffer;
 		(*nchars)++;
@@ -433,7 +442,7 @@ static const char* readuntilrange(int fd,unsigned char from,unsigned char to,int
 			bigbuffer=realloc(bigbuffer,bigsize);
 			assert(bigbuffer);
 		}
-		int ret=read(fd,bigbuffer+*nchars,1);
+		int ret=readretry(fd,bigbuffer+*nchars,1);
 		if(ret==-1)return NULL;
 		if(ret==0)return bigbuffer;
 		(*nchars)++;
@@ -450,7 +459,11 @@ int tgetkey(void){
 	if(bufchar!=-1){
 		c=bufchar;
 		bufchar=-1;
-	} else if(read(0,&c,1)<=0)return -1; //EOF
+	} else {
+		int ret=readretry(0,&c,1);
+		if(ret==0)return -1; //EOF
+		if(ret==-1)return -2; //error
+	}
 	if(c==12&&handlerefresh){
 		redrawfull();
 		return tgetkey();
@@ -469,7 +482,9 @@ int tgetkey(void){
 	if(ret==0)return 27; //just escape key
 	// if(ret==-1)do_something(); //in case of select error, we just continue reading
 
-	if(read(0,&c,1)<=0)return -1; //EOF
+	ret=readretry(0,&c,1);
+	if(ret==0)return -1; //EOF
+	if(ret==-1)return -2; //error
 	if(c!='['){
 		bufchar=c;
 		return 27;
@@ -478,7 +493,7 @@ int tgetkey(void){
 	const int maxsequencelen=64;
 	int sequencelen;
 	const char *sequence=readuntilrange(0,0x40,0x7e,maxsequencelen,&sequencelen);
-	if(sequence==NULL)return -1; //read error
+	if(sequence==NULL)return -2; //read error
 	if(sequencelen==maxsequencelen||sequencelen==0)return tgetkey(); //corrupted escape sequence?
 
 	int arguments[maxsequencelen/2],narguments=0;

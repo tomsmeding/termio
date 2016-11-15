@@ -48,8 +48,12 @@ void popcursor(void);
 
 void bel(void);
 
-int tgetkey(void); // If in [0,254], actually that character; else one of the KEY_ constants
+// Values [0,255] are that character; -1 is EOF, -2 is error. Other values
+// are one of the KEY_* constants.
+int tgetkey(void);
+
 char* tgetline(void); // Returns newly allocated string; null if escape was pressed
+
 
 #define KEY_LF 10
 #define KEY_CR 13
