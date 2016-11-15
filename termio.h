@@ -66,6 +66,13 @@ char* tgetline(void); // Returns newly allocated string; null if escape was pres
 #define KEY_DOWN 1004
 #define KEY_DELETE 1100
 
+// Add (+) the relevant character: ascii '@' (64) till '_' (95)
+// E.g. ^C is KEY_CTRL + 'C' == 11067
+// Note that alt-[ is interpreted as the start of an escape sequence, and not normally readable
+#define KEY_CTRL (-64)
+#define KEY_ALT 12000
+#define KEY_CTRLALT (KEY_CTRL+KEY_ALT)
+
 
 
 // --- WIDGET LIBRARY

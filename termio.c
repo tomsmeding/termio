@@ -454,16 +454,10 @@ static const char* readuntilrange(int fd,unsigned char from,unsigned char to,int
 }
 
 int tgetkey(void){
-	static int bufchar=-1; //-1 is nothing, 0<=x<=255 is char
 	unsigned char c;
-	if(bufchar!=-1){
-		c=bufchar;
-		bufchar=-1;
-	} else {
-		int ret=readretry(0,&c,1);
-		if(ret==0)return -1; //EOF
-		if(ret==-1)return -2; //error
-	}
+	int ret=readretry(0,&c,1);
+	if(ret==0)return -1; //EOF
+	if(ret==-1)return -2; //error
 	if(c==12&&handlerefresh){
 		redrawfull();
 		return tgetkey();
@@ -477,7 +471,7 @@ int tgetkey(void){
 	struct timeval tv;
 	tv.tv_sec=0;
 	tv.tv_usec=100000; //100ms escape timeout
-	int ret=select(1,&inset,NULL,NULL,&tv);
+	ret=select(1,&inset,NULL,NULL,&tv);
 
 	if(ret==0)return 27; //just escape key
 	// if(ret==-1)do_something(); //in case of select error, we just continue reading
@@ -486,8 +480,7 @@ int tgetkey(void){
 	if(ret==0)return -1; //EOF
 	if(ret==-1)return -2; //error
 	if(c!='['){
-		bufchar=c;
-		return 27;
+		return KEY_ALT+c;
 	}
 
 	const int maxsequencelen=64;
