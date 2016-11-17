@@ -454,6 +454,12 @@ static const char* readuntilrange(int fd,unsigned char from,unsigned char to,int
 }
 
 int tgetkey(void){
+	static unsigned char bufchar='\0';
+	if(bufchar!='\0'){
+		int ret=bufchar;
+		bufchar='\0';
+		return ret;
+	}
 	unsigned char c;
 	int ret=readretry(0,&c,1);
 	if(ret==0)return -1; //EOF
@@ -479,8 +485,20 @@ int tgetkey(void){
 	ret=readretry(0,&c,1);
 	if(ret==0)return -1; //EOF
 	if(ret==-1)return -2; //error
+	int addalt=0;
 	if(c!='['){
-		return KEY_ALT+c;
+		if(c==27){
+			ret=readretry(0,&c,1);
+			if(ret==0)return -1; //EOF
+			if(ret==-1)return -2; //error
+			if(c!='['){
+				bufchar=c;
+				return KEY_ALT+KEY_ESC;
+			}
+			addalt=KEY_ALT;
+		} else {
+			return KEY_ALT+c;
+		}
 	}
 
 	const int maxsequencelen=64;
@@ -502,12 +520,14 @@ int tgetkey(void){
 	}
 
 	char commandchar=sequence[sequencelen-1];
+
 	switch(commandchar){
-		case 'A': return KEY_UP;
-		case 'B': return KEY_DOWN;
-		case 'C': return KEY_RIGHT;
-		case 'D': return KEY_LEFT;
-		case '~': return KEY_DELETE;
+		case 'A': return addalt+KEY_UP;
+		case 'B': return addalt+KEY_DOWN;
+		case 'C': return addalt+KEY_RIGHT;
+		case 'D': return addalt+KEY_LEFT;
+		case 'Z': return addalt+KEY_SHIFTTAB;
+		case '~': return addalt+KEY_DELETE;
 	}
 
 	//unrecognised sequence!

@@ -55,6 +55,7 @@ int tgetkey(void);
 char* tgetline(void); // Returns newly allocated string; null if escape was pressed
 
 
+#define KEY_TAB 9
 #define KEY_LF 10
 #define KEY_CR 13
 #define KEY_ESC 27
@@ -65,12 +66,13 @@ char* tgetline(void); // Returns newly allocated string; null if escape was pres
 #define KEY_LEFT 1003
 #define KEY_DOWN 1004
 #define KEY_DELETE 1100
+#define KEY_SHIFTTAB 1200
 
 // Add (+) the relevant character: ascii '@' (64) till '_' (95)
 // E.g. ^C is KEY_CTRL + 'C' == 11067
 // Note that alt-[ is interpreted as the start of an escape sequence, and not normally readable
 #define KEY_CTRL (-64)
-#define KEY_ALT 12000
+#define KEY_ALT 120000
 #define KEY_CTRLALT (KEY_CTRL+KEY_ALT)
 
 
