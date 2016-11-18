@@ -291,10 +291,10 @@ __attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
 
 	int startx=cursor.x;
 
-	char *bufit=buf;
 	for(int i=0;i<len;i++){
-		tputcstartx(*bufit++,&startx);
+		tputcstartx(buf[i],&startx);
 	}
+	free(buf);
 	return len;
 }
 
