@@ -69,7 +69,7 @@ char* tgetline(void); // Returns newly allocated string; null if escape was pres
 #define KEY_SHIFTTAB 1200
 
 // Add (+) the relevant character: ascii '@' (64) till '_' (95)
-// E.g. ^C is KEY_CTRL + 'C' == 11067
+// E.g. ^C is KEY_CTRL + 'C'
 // Note that alt-[ is interpreted as the start of an escape sequence, and not normally readable
 #define KEY_CTRL (-64)
 #define KEY_ALT 120000
