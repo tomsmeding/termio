@@ -65,6 +65,8 @@ char* tgetline(void); // Returns newly allocated string; null if escape was pres
 #define KEY_UP 1002
 #define KEY_LEFT 1003
 #define KEY_DOWN 1004
+#define KEY_PAGEUP 1021
+#define KEY_PAGEDOWN 1022
 #define KEY_DELETE 1100
 #define KEY_SHIFTTAB 1200
 

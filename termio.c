@@ -527,7 +527,13 @@ int tgetkey(void){
 		case 'C': return addalt+KEY_RIGHT;
 		case 'D': return addalt+KEY_LEFT;
 		case 'Z': return addalt+KEY_SHIFTTAB;
-		case '~': return addalt+KEY_DELETE;
+		case '~':
+			if(narguments==0)return addalt+KEY_DELETE;
+			switch(arguments[0]){
+				case 3: return addalt+KEY_DELETE;
+				case 5: return addalt+KEY_PAGEUP;
+				case 6: return addalt+KEY_PAGEDOWN;
+			}
 	}
 
 	//unrecognised sequence!
