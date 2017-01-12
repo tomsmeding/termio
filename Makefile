@@ -53,9 +53,11 @@ uninstall:
 	rm -f $(PREFIX)/lib/libtermio.a
 	rm -f $(PREFIX)/include/termio.h
 
-remake: clean all
+remake: clean
+	make all
 
-reinstall: clean install
+reinstall: clean
+	make install
 
 dynamiclib: libtermio.$(DYLIB_EXT)
 
