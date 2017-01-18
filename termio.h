@@ -104,8 +104,9 @@ char* prw_handlekey(Promptwidget *prw,int key); //newly allocated input string i
 
 typedef struct Menuitem{
 	char *text;
-	int hotkey;
-	void (*func)(void); //will be called by menu_handlekey()
+	int hotkey; // '\0' means no hotkey
+	void (*func)(int index); //will be called by menu_handlekey(); index is zero-based
+	                         //if NULL, MENUKEY_QUIT will be returned upon selection
 } Menuitem;
 
 typedef struct Menudata{

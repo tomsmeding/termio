@@ -15,6 +15,7 @@ Menuwidget* menu_make(int basex,int basey,const Menudata *data){
 	if(!mw)return NULL;
 	mw->x=basex;
 	mw->y=basey;
+	mw->choice=0;
 	mw->data=data;
 	menu_redraw(mw);
 	return mw;
@@ -60,7 +61,7 @@ Menukey menu_handlekey(Menuwidget *mw,int key){
 
 		case '\n':
 			if(mw->data->items[mw->choice].func){
-				mw->data->items[mw->choice].func();
+				mw->data->items[mw->choice].func(mw->choice);
 				return MENUKEY_CALLED;
 			} else return MENUKEY_QUIT;
 
@@ -72,7 +73,7 @@ Menukey menu_handlekey(Menuwidget *mw,int key){
 			if(i==mw->data->nitems)return MENUKEY_IGNORED;
 			else {
 				if(mw->data->items[i].func==NULL)return MENUKEY_QUIT;
-				mw->data->items[i].func();
+				mw->data->items[i].func(i);
 				return MENUKEY_CALLED;
 			}
 		}
