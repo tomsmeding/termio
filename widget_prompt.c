@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 #include "termio.h"
@@ -8,10 +9,11 @@ struct Promptwidget{
 	int x,y,w;
 	char *buf;
 	int sz,len;
+	char *title;
 };
 
 
-Promptwidget *prw_make(int x,int y,int w){
+Promptwidget *prw_make(int x,int y,int w,const char *title){
 	Promptwidget *prw=malloc(sizeof(Promptwidget));
 	if(!prw)return NULL;
 	prw->sz=128;
@@ -25,12 +27,15 @@ Promptwidget *prw_make(int x,int y,int w){
 	prw->x=x;
 	prw->y=y;
 	prw->w=w;
+	prw->title=NULL;
+	prw_changetitle(prw,title);
 
 	prw_redraw(prw);
 	return prw;
 }
 
 void prw_destroy(Promptwidget *prw){
+	if(prw->title)free(prw->title);
 	free(prw->buf);
 	free(prw);
 }
@@ -38,7 +43,8 @@ void prw_destroy(Promptwidget *prw){
 void prw_redraw(Promptwidget *prw){
 	moveto(prw->x-1,prw->y-1);
 	tputc('+');
-	for(int i=0;i<prw->w;i++)tputc('-');
+	int len=tprintf("%s",prw->title);
+	for(int i=len;i<prw->w;i++)tputc('-');
 	tputc('+');
 
 	moveto(prw->x-1,prw->y);
@@ -98,4 +104,13 @@ char* prw_handlekey(Promptwidget *prw,int key){
 			break;
 	}
 	return NULL;
+}
+
+void prw_changetitle(Promptwidget *prw,const char *title){
+	if(prw->title)free(prw->title);
+	if(title==NULL)title="";
+	prw->title=strdup(title);
+	assert(prw->title);
+	if((int)strlen(prw->title)>prw->w-2)prw->title[prw->w]='\0';
+	prw_redraw(prw);
 }

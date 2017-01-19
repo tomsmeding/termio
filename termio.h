@@ -96,10 +96,11 @@ void lgw_changetitle(Logwidget *lgw,const char *title);
 struct Promptwidget;
 typedef struct Promptwidget Promptwidget;
 
-Promptwidget *prw_make(int x,int y,int w);
+Promptwidget *prw_make(int x,int y,int w,const char *title); //title may be "" or NULL for no title; is copied
 void prw_destroy(Promptwidget *prw);
 void prw_redraw(Promptwidget *prw); //should only be needed if overwritten
 char* prw_handlekey(Promptwidget *prw,int key); //newly allocated input string if enter, NULL otherwise
+void prw_changetitle(Promptwidget *prw,const char *title);
 
 
 typedef struct Menuitem{
