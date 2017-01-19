@@ -20,6 +20,7 @@ Promptwidget *prw_make(int x,int y,int w){
 		free(prw);
 		return NULL;
 	}
+	prw->buf[0]='\0';
 	prw->len=0;
 	prw->x=x;
 	prw->y=y;

@@ -45,7 +45,6 @@ Logwidget* lgw_make(int x,int y,int w,int h,const char *title){
 	if(!lgw)return NULL;
 	lgw->cb=cb_make(h-2,free);
 	if(!lgw->cb){
-		if(lgw->title)free(lgw->title);
 		free(lgw);
 		return NULL;
 	}
@@ -123,12 +122,9 @@ void lgw_clear(Logwidget *lgw){
 
 void lgw_changetitle(Logwidget *lgw,const char *title){
 	if(lgw->title)free(lgw->title);
-	if(title==NULL){
-		lgw->title=NULL;
-	} else {
-		int len=asprintf(&lgw->title,"%s",title);
-		assert(lgw->title);
-		if(len>lgw->w-2)lgw->title[lgw->w]='\0';
-	}
+	if(title==NULL)title="";
+	lgw->title=strdup(title);
+	assert(lgw->title);
+	if((int)strlen(lgw->title)>lgw->w-2)lgw->title[lgw->w]='\0';
 	lgw_redraw(lgw);
 }
