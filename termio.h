@@ -84,7 +84,7 @@ char* tgetline(void); // Returns newly allocated string; null if escape was pres
 struct Logwidget;
 typedef struct Logwidget Logwidget;
 
-Logwidget* lgw_make(int x,int y,int w,int h,const char *title); //title may be "" or NULL for no title; is copied
+Logwidget* lgw_make(int x,int y,int w,int h,const char *title,bool timestamps); //title may be "" or NULL for no title; is copied
 void lgw_destroy(Logwidget *lgw);
 void lgw_redraw(Logwidget *lgw); //called automatically; should only be needed if something else overwrote the widget
 void lgw_add(Logwidget *lgw,const char *line);
