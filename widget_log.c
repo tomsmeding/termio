@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <assert.h>
+#include <time.h>
 
 #include "termio.h"
 #include "circbuf.h"
@@ -16,6 +17,7 @@ struct Logwidget{
 	int nrows;
 	int x,y,w,h;
 	char *title;
+	bool timestamps;
 };
 
 
@@ -38,7 +40,7 @@ static void lgw_drawborder(Logwidget *lgw){
 	tputc('+');
 }
 
-Logwidget* lgw_make(int x,int y,int w,int h,const char *title){
+Logwidget* lgw_make(int x,int y,int w,int h,const char *title,bool timestamps){
 	assert(x>=0&&y>=0);
 	assert(w>=3&&h>=3);
 	Logwidget *lgw=malloc(sizeof(Logwidget));
@@ -56,6 +58,8 @@ Logwidget* lgw_make(int x,int y,int w,int h,const char *title){
 
 	lgw->title=NULL;
 	lgw_changetitle(lgw,title);
+
+	lgw->timestamps=timestamps;
 
 	return lgw;
 }
@@ -87,7 +91,23 @@ void lgw_redraw(Logwidget *lgw){
 	popcursor();
 }
 
-void lgw_add(Logwidget *lgw,const char *line){
+char* formatTime(const time_t *tt) {
+	struct tm *timeinfo=localtime(tt);
+	char *buf=malloc(6*sizeof(char));
+	strftime(buf,6,"%H:%M",timeinfo);
+	return buf;
+}
+
+void lgw_add(Logwidget *lgw,const char *ln){
+	char *line;
+	if(lgw->timestamps){
+		time_t tt;
+		time(&tt);
+		asprintf(&line,"%s %s",formatTime(&tt),ln);
+	} else {
+		line=(char*)ln;
+	}
+
 	int len=strlen(line);
 	while(len>0){
 		int copylen=lgw->w-2;
