@@ -72,6 +72,7 @@ Menukey menu_handlekey(Menuwidget *mw,int key){
 			}
 			if(i==mw->data->nitems)return MENUKEY_IGNORED;
 			else {
+				mw->choice=i;
 				if(mw->data->items[i].func==NULL)return MENUKEY_QUIT;
 				mw->data->items[i].func(i);
 				return MENUKEY_CALLED;
