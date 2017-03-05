@@ -91,21 +91,19 @@ void lgw_redraw(Logwidget *lgw){
 	popcursor();
 }
 
-char* formatTime(const time_t *tt) {
-	struct tm *timeinfo=localtime(tt);
-	char *buf=malloc(6*sizeof(char));
+static const char* formatTime(time_t tt) {
+	static char buf[6];
+	struct tm *timeinfo=localtime(&tt);
 	strftime(buf,6,"%H:%M",timeinfo);
 	return buf;
 }
 
-void lgw_add(Logwidget *lgw,const char *ln){
-	char *line;
+void lgw_add(Logwidget *lgw,const char *line){
+	char *allocLine=NULL;
 	if(lgw->timestamps){
-		time_t tt;
-		time(&tt);
-		asprintf(&line,"%s %s",formatTime(&tt),ln);
-	} else {
-		line=(char*)ln;
+		asprintf(&allocLine,"%s %s",formatTime(time(NULL)),line);
+		assert(allocLine!=NULL);
+		line=allocLine;
 	}
 
 	int len=strlen(line);
@@ -121,6 +119,11 @@ void lgw_add(Logwidget *lgw,const char *ln){
 		len-=copylen;
 		line+=copylen;
 	}
+
+	if(allocLine!=NULL){
+		free(allocLine);
+	}
+
 	lgw_redraw(lgw);
 }
 
