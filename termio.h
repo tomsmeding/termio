@@ -40,6 +40,8 @@ void fillrect(int x,int y,int w,int h,char c);
 void redraw(void);
 void redrawfull(void);
 
+void scrollterm(int x,int y,int w,int h,int amount);
+
 char getbufferchar(int x,int y);
 
 void moveto(int x,int y);

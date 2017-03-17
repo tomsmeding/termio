@@ -352,6 +352,37 @@ void redrawfull(void){
 }
 
 
+void scrollterm(int x,int y,int w,int h,int amount){
+	if(amount==0)return;
+	if(x>=termsize.w||y>=termsize.h)return;
+	if(x<0){
+		w+=x;
+		x=0;
+	}
+	if(y<0){
+		h+=y;
+		y=0;
+	}
+	if(w<=0||h<=0)return;
+	int starty,endy;
+	if(amount>0){
+		starty=y;
+		endy=y+h-amount;
+	} else {
+		starty=y+amount;
+		endy=y+h;
+	}
+	for(int yy=starty;yy<endy;yy++){
+		memcpy(drawbuf+w*yy+x,drawbuf+w*(yy+amount)+x,termsize.w*sizeof(Screencell));
+	}
+	if(amount>0){
+		fillrect(x,endy,w,amount,' ');
+	} else {
+		fillrect(x,y,w,amount,' ');
+	}
+}
+
+
 char getbufferchar(int x,int y){
 	if(x>=termsize.w)x=termsize.w-1;
 	if(x<0)x=0;
