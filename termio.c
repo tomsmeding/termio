@@ -189,23 +189,23 @@ void setul(bool ul){
 // Modifies accstyle to match style
 // Pass NULL as accstyle to unconditionally set style
 static void outputstyle(Style *accstyle,const Style *style){
-	char *parts[6];
+	char parts[6][16];
 	int nparts=0;
 	if(!accstyle||accstyle->bold!=style->bold){
 		if(style->bold){
-			parts[nparts++]="1";
+			strcpy(parts[nparts++],"1");
 		} else {
-			parts[nparts++]="0"; // no way to reset bold
+			strcpy(parts[nparts++],"0"); // no way to reset bold
 			if(accstyle)accstyle->fg=accstyle->bg=9;
 			if(accstyle)accstyle->bold=accstyle->ul=false;
 		}
 	}
 	if(!accstyle||accstyle->ul!=style->ul){
-		if(style->ul)parts[nparts++]="4";
-		else parts[nparts++]="24";
+		if(style->ul)strcpy(parts[nparts++],"4");
+		else strcpy(parts[nparts++],"24");
 	}
-	if(!accstyle||style->fg!=accstyle->fg)asprintf(&parts[nparts++],"3%d",style->fg);
-	if(!accstyle||style->bg!=accstyle->bg)asprintf(&parts[nparts++],"4%d",style->bg);
+	if(!accstyle||style->fg!=accstyle->fg)sprintf(parts[nparts++],"3%d",style->fg);
+	if(!accstyle||style->bg!=accstyle->bg)sprintf(parts[nparts++],"4%d",style->bg);
 
 	if(accstyle)*accstyle=*style;
 
