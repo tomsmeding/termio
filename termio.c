@@ -26,7 +26,7 @@ typedef struct Position{
 } Position;
 
 typedef struct Screencell{
-	char c;
+	int c;
 	Style style;
 } Screencell;
 
@@ -250,7 +250,7 @@ static void resizeterm(void){
 	drawbuf=newdraw;
 }
 
-static void tputcstartx(char c,int *startx){
+static void tputcstartx(int c,int *startx){
 	switch(c){
 		case '\r':
 			*startx=0;
@@ -260,7 +260,7 @@ static void tputcstartx(char c,int *startx){
 			break;
 
 		default:
-			assert(c>=32&&c<127);
+			assert(c>=32);
 			atpos(drawbuf,cursor).style=curstyle;
 			atpos(drawbuf,cursor).c=c;
 			cursor.x++;
@@ -274,9 +274,42 @@ static void tputcstartx(char c,int *startx){
 	}
 }
 
-void tputc(char c){
+void tputc(int c){
 	int startx=0;
 	tputcstartx(c,&startx);
+}
+
+// returns '?' on finding invalid or too-short utf8 character
+static int scanutf8char(const char *strS,int len,int *clen){
+	const unsigned char *str=(const unsigned char*)strS;
+	assert(len>0);
+	if((str[0]&0x80)==0){
+		*clen=1;
+		return str[0];
+	}
+	*clen=1;  // for '?'
+	if((str[0]&0xe0)==0xc0){
+		if(len<2)return '?';
+		if((str[1]&0xc0)!=0x80)return '?';
+		*clen=2;
+		return ((str[0]&0x1f)<<6)|(str[1]&0x3f);
+	}
+	if((str[0]&0xf0)==0xe0){
+		if(len<3)return '?';
+		if((str[1]&0xc0)!=0x80)return '?';
+		if((str[2]&0xc0)!=0x80)return '?';
+		*clen=3;
+		return ((str[0]&0x0f)<<12)|((str[1]&0x3f)<<6)|(str[2]&0x3f);
+	}
+	if((str[0]&0xf8)==0xf0){
+		if(len<4)return '?';
+		if((str[1]&0xc0)!=0x80)return '?';
+		if((str[2]&0xc0)!=0x80)return '?';
+		if((str[3]&0xc0)!=0x80)return '?';
+		*clen=4;
+		return ((str[0]&0x07)<<18)|((str[1]&0x3f)<<12)|((str[2]&0x3f)<<6)|(str[3]&0x3f);
+	}
+	return '?';
 }
 
 __attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
@@ -291,19 +324,46 @@ __attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
 
 	int startx=cursor.x;
 
-	for(int i=0;i<len;i++){
-		tputcstartx(buf[i],&startx);
+	int i=0;
+	while(i<len){
+		int clen;
+		int c=scanutf8char(buf+i,len-i,&clen);
+		tputcstartx(c,&startx);
+		i+=clen;
 	}
 	free(buf);
 	return len;
 }
 
-void fillrect(int x,int y,int w,int h,char c){
+void fillrect(int x,int y,int w,int h,int c){
 	for(int yy=y;yy<y+h;yy++){
 		for(int xx=x;xx<x+w;xx++){
 			atxy(drawbuf,xx,yy).style=curstyle;
 			atxy(drawbuf,xx,yy).c=c;
 		}
+	}
+}
+
+// writes '?' for unrepresentable (out-of-range) values in UTF-8
+static void writeutf8(FILE *stream,int c){
+	if(c<0){
+		fputc('?',stream);
+	} else if(c<(1<<7)){
+		fputc(c,stream);
+	} else if(c<(1<<(5+6))){
+		fputc(0xc0|(c>>6),stream);
+		fputc(0x80|(c&0x3f),stream);
+	} else if(c<(1<<(4+6+6))){
+		fputc(0xe0|(c>>12),stream);
+		fputc(0x80|((c>>6)&0x3f),stream);
+		fputc(0x80|(c&0x3f),stream);
+	} else if(c<(1<<(3+6+6+6))){
+		fputc(0xf0|(c>>18),stream);
+		fputc(0x80|((c>>12)&0x3f),stream);
+		fputc(0x80|((c>>6)&0x3f),stream);
+		fputc(0x80|(c&0x3f),stream);
+	} else {
+		fputc('?',stream);
 	}
 }
 
@@ -333,7 +393,7 @@ static void redrawfullx(bool full){
 				first=false;
 				st=atxy(drawbuf,x,y).style;
 			} else outputstyle(&st,&atxy(drawbuf,x,y).style);
-			putchar(atxy(drawbuf,x,y).c);
+			writeutf8(stdout,atxy(drawbuf,x,y).c);
 			atxy(screenbuf,x,y).style=atxy(drawbuf,x,y).style;
 			atxy(screenbuf,x,y).c=atxy(drawbuf,x,y).c;
 		}
@@ -383,7 +443,7 @@ void scrollterm(int x,int y,int w,int h,int amount){
 }
 
 
-char getbufferchar(int x,int y){
+int getbufferchar(int x,int y){
 	if(x>=termsize.w)x=termsize.w-1;
 	if(x<0)x=0;
 	if(y>=termsize.h)y=termsize.h-1;

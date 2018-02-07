@@ -34,15 +34,15 @@ void setfg(int fg);
 void setbg(int bg);
 void setbold(bool bold);
 void setul(bool ul);
-void tputc(char c);
+void tputc(int c);
 int tprintf(const char *format,...) __attribute__((format (printf, 1, 2)));
-void fillrect(int x,int y,int w,int h,char c);
+void fillrect(int x,int y,int w,int h,int c);
 void redraw(void);
 void redrawfull(void);
 
 void scrollterm(int x,int y,int w,int h,int amount);
 
-char getbufferchar(int x,int y);
+int getbufferchar(int x,int y);
 
 void moveto(int x,int y);
 void pushcursor(void);
