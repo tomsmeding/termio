@@ -49,6 +49,7 @@ void pushcursor(void);
 void popcursor(void);
 
 void bel(void);
+void cursorvisible(bool visible); // Takes effect immediately
 
 // Values [0,255] are that character; -1 is EOF, -2 is error. Other values
 // are one of the KEY_* constants.

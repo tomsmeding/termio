@@ -31,6 +31,7 @@ typedef struct Screencell{
 } Screencell;
 
 static bool screenlive=false,keyboardinited=false,sighandlerinstalled=false;
+static bool cursorisvisible=true;
 static bool needresize=false;
 static bool handlerefresh=false;
 
@@ -133,12 +134,14 @@ void initscreen(void){
 		signal(SIGABRT,sighandler);
 	}
 	sighandlerinstalled=true;
+	cursorisvisible=true;
 	screenlive=true;
 }
 
 void endscreen(void){
 	if(!screenlive)return;
 
+	cursorvisible(true);
 	printf("\x1B[?1049l"); fflush(stdout);
 
 	if(screenbuf)free(screenbuf);
@@ -376,7 +379,7 @@ static void redrawfullx(bool full){
 	int x,y;
 	Style st;
 	bool first=true;
-	printf("\x1B[?25l"); //civis
+	if(cursorisvisible)printf("\x1B[?25l"); //civis
 	for(y=0;y<termsize.h;y++){
 		bool shouldmove=true;
 		for(x=0;x<termsize.w;x++){
@@ -399,7 +402,7 @@ static void redrawfullx(bool full){
 		}
 	}
 	printf("\x1B[%d;%dH",cursor.y+1,cursor.x+1);
-	printf("\x1B[?12;25h"); //cvvis
+	if(cursorisvisible)printf("\x1B[?12;25h"); //cvvis
 	fflush(stdout);
 }
 
@@ -488,6 +491,14 @@ void popcursor(void){
 void bel(void){
 	putchar('\007');
 	fflush(stdout);
+}
+
+void cursorvisible(bool visible){
+	if(visible!=cursorisvisible){
+		if(visible)printf("\x1B[?12;25h"); // cvvis
+		else printf("\x1B[?25l"); // civis
+	}
+	cursorisvisible=visible;
 }
 
 
