@@ -340,6 +340,11 @@ __attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
 }
 
 void fillrect(int x,int y,int w,int h,int c){
+	if(x<0){w+=x; x=0;}
+	if(y<0){h+=y; y=0;}
+	if(x+w>=termsize.w){w=termsize.w-x;}
+	if(y+h>=termsize.h){h=termsize.h-y;}
+
 	for(int yy=y;yy<y+h;yy++){
 		for(int xx=x;xx<x+w;xx++){
 			atxy(drawbuf,xx,yy).style=curstyle;
