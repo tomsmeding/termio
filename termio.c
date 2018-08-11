@@ -257,6 +257,7 @@ static void tputcstartx(int c,int *startx){
 	switch(c){
 		case '\r':
 			*startx=0;
+			__attribute__((fallthrough));
 		case '\n':
 			cursor.x=*startx;
 			if(cursor.y<termsize.h-1)cursor.y++;
