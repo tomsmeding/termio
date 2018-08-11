@@ -655,12 +655,14 @@ char* tgetline(void){
 	char *buf=malloc(bufsz);
 	assert(buf);
 	buf[0]='\0';
+
 	while(true){
 		int key=tgetkey();
 		switch(key){
 		case KEY_ESC:
 			free(buf);
-			return NULL;
+			buf=NULL;
+			goto cleanup_return;
 
 		case KEY_BACKSPACE:
 		case KEY_DELETE:
@@ -675,12 +677,7 @@ char* tgetline(void){
 
 		case KEY_LF:
 		case KEY_CR:
-			printf("\x1B[%dD",buflen);
-			for(int i=0;i<buflen;i++)putchar(' ');
-			printf("\x1B[%dD",buflen);
-			fflush(stdout);
-			return buf;
-			break;
+			goto cleanup_return;
 
 		default:
 			if(key>=32&&key<127){
@@ -698,5 +695,11 @@ char* tgetline(void){
 			break;
 		}
 	}
+
+cleanup_return:
+	printf("\x1B[%dD",buflen);
+	for(int i=0;i<buflen;i++)putchar(' ');
+	printf("\x1B[%dD",buflen);
+	fflush(stdout);
 	return buf;
 }
