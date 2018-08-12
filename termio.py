@@ -1,7 +1,8 @@
+import os
 from collections import namedtuple
 from ctypes import *
 
-T = cdll.LoadLibrary("./libtermio.so")
+T = cdll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + "/libtermio.so")
 
 class Size:
     def __init__(self, w, h):
