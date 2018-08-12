@@ -120,11 +120,11 @@ def tgetkey():
 
 T.tgetline.restype = c_char_p
 def tgetline():
-    charp = T.tgetline()
-    if charp is None:
+    byt = T.tgetline()
+    if byt is None:
         return None
     else:
-        return charp.value
+        return byt.decode("utf-8")
 
 
 KEY_TAB = 9
