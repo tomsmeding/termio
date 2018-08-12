@@ -630,18 +630,40 @@ int tgetkey(void){
 	char commandchar=sequence[sequencelen-1];
 
 	switch(commandchar){
-		case 'A': return addalt+KEY_UP;
-		case 'B': return addalt+KEY_DOWN;
-		case 'C': return addalt+KEY_RIGHT;
-		case 'D': return addalt+KEY_LEFT;
-		case 'Z': return addalt+KEY_SHIFTTAB;
-		case '~':
-			if(narguments==0)return addalt+KEY_DELETE;
-			switch(arguments[0]){
-				case 3: return addalt+KEY_DELETE;
-				case 5: return addalt+KEY_PAGEUP;
-				case 6: return addalt+KEY_PAGEDOWN;
+		case 'A': case 'B': case 'C': case 'D': {
+			int k;
+			switch(commandchar){
+				case 'A': k=KEY_UP; break;
+				case 'B': k=KEY_DOWN; break;
+				case 'C': k=KEY_RIGHT; break;
+				case 'D': k=KEY_LEFT; break;
 			}
+			if(narguments==2&&arguments[0]==1){
+				switch(arguments[1]){
+					case 2: return KEY_SHIFT+k;
+					case 3: return KEY_ALT+k;
+					case 5: return KEY_CTRL+k;
+					case 6: return KEY_CTRLSHIFT+k;
+					case 7: return KEY_CTRLALT+k;
+				}
+			}
+			return addalt+k;
+		}
+		case 'Z': return addalt+KEY_SHIFTTAB;
+		case '~': {
+			if(narguments==0)return addalt+KEY_DELETE;
+			int k=addalt;
+			switch(arguments[0]){
+				case 3: k+=KEY_DELETE; break;
+				case 5: k+=KEY_PAGEUP; break;
+				case 6: k+=KEY_PAGEDOWN; break;
+			}
+			if(narguments>=2)switch(arguments[1]){
+				case 2: k+=KEY_SHIFT; break;
+				case 5: k+=KEY_CTRL; break;
+			}
+			return k;
+		}
 	}
 
 	//unrecognised sequence!

@@ -77,8 +77,10 @@ char* tgetline(void); // Returns newly allocated string; null if escape was pres
 // E.g. ^C is KEY_CTRL + 'C'
 // Note that alt-[ is interpreted as the start of an escape sequence, and not normally readable
 #define KEY_CTRL (-64)
-#define KEY_ALT 120000
+#define KEY_SHIFT 1000000
+#define KEY_ALT    120000
 #define KEY_CTRLALT (KEY_CTRL+KEY_ALT)
+#define KEY_CTRLSHIFT (KEY_CTRL+KEY_SHIFT)
 
 
 
