@@ -1,9 +1,12 @@
 from conans import ConanFile, AutoToolsBuildEnvironment
 
 
-class HelloConan(ConanFile):
+class TermioConan(ConanFile):
     name = "termio"
-    version = "0.1"
+    description = "Double-buffering terminal UI library (light-weight ncurses alternative)"
+    version = "1.0.0"
+    license = "MIT"
+    url = "https://github.com/tomsmeding/termio"
     settings = ("os", "compiler", "build_type", "arch")
     generators = "cmake"
     exports_sources = "*"
@@ -18,5 +21,4 @@ class HelloConan(ConanFile):
         self.copy("*.a", dst="lib", keep_path=False)
 
     def package_info(self):
-        # self.cpp_info.libs = ["hello"]
-        pass
+        self.cpp_info.libs = ["termio"]
