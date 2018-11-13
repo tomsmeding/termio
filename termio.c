@@ -160,6 +160,7 @@ void installredrawhandler(void (*handler)(bool)){
 
 
 void clearscreen(void){
+	assert(screenlive);
 	for(int i=0;i<termsize.w*termsize.h;i++){
 		drawbuf[i].c=' ';
 		drawbuf[i].style.fg=drawbuf[i].style.bg=9;
@@ -279,6 +280,7 @@ static void tputcstartx(int c,int *startx){
 }
 
 void tputc(int c){
+	assert(screenlive);
 	int startx=0;
 	tputcstartx(c,&startx);
 }
@@ -317,6 +319,7 @@ static int scanutf8char(const char *strS,int len,int *clen){
 }
 
 __attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
+	assert(screenlive);
 	if(needresize)resizeterm();
 	char *buf;
 	va_list ap;
@@ -340,6 +343,7 @@ __attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
 }
 
 void fillrect(int x,int y,int w,int h,int c){
+	assert(screenlive);
 	if(x<0){w+=x; x=0;}
 	if(y<0){h+=y; y=0;}
 	if(x+w>=termsize.w){w=termsize.w-x;}
@@ -413,15 +417,18 @@ static void redrawfullx(bool full){
 }
 
 void redraw(void){
+	assert(screenlive);
 	redrawfullx(false);
 }
 
 void redrawfull(void){
+	assert(screenlive);
 	redrawfullx(true);
 }
 
 
 void scrollterm(int x,int y,int w,int h,int amount){
+	assert(screenlive);
 	if(amount==0)return;
 	if(x>=termsize.w||y>=termsize.h)return;
 	if(x<0){
@@ -453,6 +460,7 @@ void scrollterm(int x,int y,int w,int h,int amount){
 
 
 int getbufferchar(int x,int y){
+	assert(screenlive);
 	if(x>=termsize.w)x=termsize.w-1;
 	if(x<0)x=0;
 	if(y>=termsize.h)y=termsize.h-1;
@@ -462,6 +470,7 @@ int getbufferchar(int x,int y){
 
 
 void moveto(int x,int y){
+	assert(screenlive);
 	if(x>=termsize.w)x=termsize.w-1;
 	if(x<0)x=0;
 	if(y>=termsize.h)y=termsize.h-1;
@@ -478,6 +487,7 @@ typedef struct Llitem{
 static Llitem *cursorstack=NULL;
 
 void pushcursor(void){
+	assert(screenlive);
 	Llitem *item=malloc(sizeof(Llitem));
 	assert(item);
 	item->pos=cursor;
@@ -486,6 +496,7 @@ void pushcursor(void){
 }
 
 void popcursor(void){
+	assert(screenlive);
 	assert(cursorstack);
 	Llitem *item=cursorstack;
 	cursorstack=item->next;
