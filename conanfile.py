@@ -8,7 +8,6 @@ class TermioConan(ConanFile):
     license = "MIT"
     url = "https://github.com/tomsmeding/termio"
     settings = ("os", "compiler", "build_type", "arch")
-    generators = "cmake"
     exports_sources = "*"
 
     def build(self):
