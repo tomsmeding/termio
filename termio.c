@@ -116,9 +116,9 @@ void initscreen(void){
 
 	termsize=querytermsize();
 
-	screenbuf=malloc(termsize.w*termsize.h*sizeof(Screencell));
+	screenbuf=calloc(termsize.w*termsize.h,sizeof(Screencell));
 	assert(screenbuf);
-	drawbuf=malloc(termsize.w*termsize.h*sizeof(Screencell));
+	drawbuf=calloc(termsize.w*termsize.h,sizeof(Screencell));
 	assert(drawbuf);
 
 	for(int i=0;i<termsize.w*termsize.h;i++){
@@ -240,9 +240,9 @@ static void resizeterm(void){
 
 	termsize=querytermsize();
 
-	Screencell *newscreen=malloc(termsize.w*termsize.h*sizeof(Screencell));
+	Screencell *newscreen=calloc(termsize.w*termsize.h,sizeof(Screencell));
 	assert(newscreen);
-	Screencell *newdraw=malloc(termsize.w*termsize.h*sizeof(Screencell));
+	Screencell *newdraw=calloc(termsize.w*termsize.h,sizeof(Screencell));
 	assert(newdraw);
 
 	copyintersect(newscreen,termsize,screenbuf,oldsize);
