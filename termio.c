@@ -70,7 +70,43 @@ static Size querytermsize(void){
 	return sz;
 }
 
+static void copyintersect(Screencell *dest,Size destsz,const Screencell *src,Size srcsz){
+	for(int y=0;y<destsz.h;y++){
+		for(int x=0;x<destsz.w;x++){
+			if(x<srcsz.w&&y<srcsz.h){
+				memcpy(dest+(destsz.w*y+x),src+(srcsz.w*y+x),sizeof(Screencell));
+			} else {
+				dest[destsz.w*y+x].c=' ';
+				dest[destsz.w*y+x].style.fg=dest[destsz.w*y+x].style.bg=9;
+				dest[destsz.w*y+x].style.bold=dest[destsz.w*y+x].style.ul=false;
+			}
+		}
+	}
+}
+
+static void resizeterm(void){
+	needresize=false;
+
+	Size oldsize=termsize;
+
+	termsize=querytermsize();
+
+	Screencell *newscreen=calloc(termsize.w*termsize.h,sizeof(Screencell));
+	assert(newscreen);
+	Screencell *newdraw=calloc(termsize.w*termsize.h,sizeof(Screencell));
+	assert(newdraw);
+
+	copyintersect(newscreen,termsize,screenbuf,oldsize);
+	copyintersect(newdraw,termsize,drawbuf,oldsize);
+
+	free(screenbuf);
+	free(drawbuf);
+	screenbuf=newscreen;
+	drawbuf=newdraw;
+}
+
 Size gettermsize(void){
+	if(needresize)resizeterm();
 	return termsize;
 }
 
@@ -161,6 +197,7 @@ void installredrawhandler(void (*handler)(bool)){
 
 void clearscreen(void){
 	assert(screenlive);
+	if(needresize)resizeterm();
 	for(int i=0;i<termsize.w*termsize.h;i++){
 		drawbuf[i].c=' ';
 		drawbuf[i].style.fg=drawbuf[i].style.bg=9;
@@ -219,41 +256,6 @@ static void outputstyle(Style *accstyle,const Style *style){
 	putchar('m');
 }
 
-static void copyintersect(Screencell *dest,Size destsz,const Screencell *src,Size srcsz){
-	for(int y=0;y<destsz.h;y++){
-		for(int x=0;x<destsz.w;x++){
-			if(x<srcsz.w&&y<srcsz.h){
-				memcpy(dest+(destsz.w*y+x),src+(srcsz.w*y+x),sizeof(Screencell));
-			} else {
-				dest[destsz.w*y+x].c=' ';
-				dest[destsz.w*y+x].style.fg=dest[destsz.w*y+x].style.bg=9;
-				dest[destsz.w*y+x].style.bold=dest[destsz.w*y+x].style.ul=false;
-			}
-		}
-	}
-}
-
-static void resizeterm(void){
-	needresize=false;
-
-	Size oldsize=termsize;
-
-	termsize=querytermsize();
-
-	Screencell *newscreen=calloc(termsize.w*termsize.h,sizeof(Screencell));
-	assert(newscreen);
-	Screencell *newdraw=calloc(termsize.w*termsize.h,sizeof(Screencell));
-	assert(newdraw);
-
-	copyintersect(newscreen,termsize,screenbuf,oldsize);
-	copyintersect(newdraw,termsize,drawbuf,oldsize);
-
-	free(screenbuf);
-	free(drawbuf);
-	screenbuf=newscreen;
-	drawbuf=newdraw;
-}
-
 static void tputcstartx(int c,int *startx){
 	switch(c){
 		case '\r':
@@ -281,6 +283,7 @@ static void tputcstartx(int c,int *startx){
 
 void tputc(int c){
 	assert(screenlive);
+	if(needresize)resizeterm();
 	int startx=0;
 	tputcstartx(c,&startx);
 }
@@ -344,6 +347,7 @@ __attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
 
 void fillrect(int x,int y,int w,int h,int c){
 	assert(screenlive);
+	if(needresize)resizeterm();
 	if(x<0){w+=x; x=0;}
 	if(y<0){h+=y; y=0;}
 	if(x+w>=termsize.w){w=termsize.w-x;}
@@ -429,6 +433,7 @@ void redrawfull(void){
 
 void scrollterm(int x,int y,int w,int h,int amount){
 	assert(screenlive);
+	if(needresize)resizeterm();
 	if(amount==0)return;
 	if(x>=termsize.w||y>=termsize.h)return;
 	if(x<0){
@@ -461,6 +466,7 @@ void scrollterm(int x,int y,int w,int h,int amount){
 
 int getbufferchar(int x,int y){
 	assert(screenlive);
+	if(needresize)resizeterm();
 	if(x>=termsize.w)x=termsize.w-1;
 	if(x<0)x=0;
 	if(y>=termsize.h)y=termsize.h-1;
@@ -471,6 +477,7 @@ int getbufferchar(int x,int y){
 
 void moveto(int x,int y){
 	assert(screenlive);
+	if(needresize)resizeterm();
 	if(x>=termsize.w)x=termsize.w-1;
 	if(x<0)x=0;
 	if(y>=termsize.h)y=termsize.h-1;
