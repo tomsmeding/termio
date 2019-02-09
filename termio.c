@@ -321,7 +321,28 @@ static int scanutf8char(const char *strS,int len,int *clen){
 	return '?';
 }
 
-__attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
+static void tprintlen(const char *str,int len){
+	int startx=cursor.x;
+
+	int i=0;
+	while(i<len){
+		int clen;
+		int c=scanutf8char(str+i,len-i,&clen);
+		tputcstartx(c,&startx);
+		i+=clen;
+	}
+}
+
+int tprint(const char *str){
+	assert(screenlive);
+	if(needresize)resizeterm();
+
+	int len=strlen(str);
+	tprintlen(str,strlen(str));
+	return len;
+}
+
+__attribute__((format (printf, 1, 2))) int tprintf(const char *format,...){
 	assert(screenlive);
 	if(needresize)resizeterm();
 	char *buf;
@@ -332,15 +353,7 @@ __attribute__((format (printf, 1,2))) int tprintf(const char *format,...){
 
 	assert(buf&&len>=0);
 
-	int startx=cursor.x;
-
-	int i=0;
-	while(i<len){
-		int clen;
-		int c=scanutf8char(buf+i,len-i,&clen);
-		tputcstartx(c,&startx);
-		i+=clen;
-	}
+	tprintlen(buf,len);
 	free(buf);
 	return len;
 }
