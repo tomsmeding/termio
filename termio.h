@@ -29,6 +29,7 @@ void installredrawhandler(void (*handler)(bool)); //arg: whether full redraw
 void clearscreen(void);
 
 Size gettermsize(void);
+Size querytermsize(void);  // same as gettermsize, slower, but also works when not in screen mode
 void setstyle(const Style *style);
 void setfg(int fg);
 void setbg(int bg);
